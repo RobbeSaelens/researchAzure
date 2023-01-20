@@ -1,0 +1,95 @@
+{
+    "name": "hotels-quickstart",
+    "fields": [
+        {
+            "name": "show_id",
+            "type": "Edm.String",
+            "key": true,
+            "filterable": true
+        },
+        {
+            "name": "type",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": false,
+            "sortable": true,
+            "facetable": false
+        },
+        {
+            "name": "title",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": false,
+            "sortable": false,
+            "facetable": false,
+            "analyzerName": "en.lucene"
+        },
+        {
+            "name": "director",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "sortable": true,
+            "facetable": true
+        },
+        {
+            "name": "country",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "sortable": false,
+            "facetable": true
+        },
+        {
+            "name": "date_added",
+            "type": "Edm.String",
+            "filterable": true,
+            "sortable": true,
+            "facetable": true
+        },
+        {
+            "name": "release_year",
+            "type": "Edm.Int32",
+            "filterable": true,
+            "sortable": true,
+            "facetable": true
+        },
+        {
+            "name": "rating",
+            "type": "Edm.String",
+            "filterable": true,
+            "sortable": true,
+            "facetable": true
+        },
+        {
+            "name": "duration",
+            "type": "Edm.String",
+            "filterable": true,
+            "sortable": true,
+            "facetable": true
+        },
+        {
+            "name": "listed_in",
+            "type": "Edm.String",
+            "filterable": true,
+            "sortable": true,
+            "facetable": true
+        },
+        {
+            "name": "description",
+            "type": "Edm.String",
+            "filterable": true,
+            "sortable": true,
+            "facetable": true
+        }
+    ],
+    "suggesters": [
+        {
+            "name": "sg",
+            "searchMode": "analyzingInfixMatching",
+            "sourceFields": [
+                "HotelName"
+            ]
+        }
+    ]
+}
