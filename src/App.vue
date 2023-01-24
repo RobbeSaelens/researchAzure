@@ -26,7 +26,7 @@
             <div>
               <div class="flex bg-white rounded-2 px-5 py-2">
                 <input
-                  @click="dropdownText = 'Select director'"
+                  @click="dropdownText = 'Select Director'"
                   type="text"
                   v-model="searchInput.search"
                   :placeholder="searchSuggestion"
@@ -75,7 +75,7 @@
           <div class="flex items-center" v-for="t of types" :key="t">
             <input
               type="checkbox"
-              @click="dropdownText = 'Select director'"
+              @click="dropdownText = 'Select Director'"
               v-model="filterInputType[t]"
               class="
                 cursor-pointer
@@ -98,10 +98,15 @@
                 filterInputType.asc == true
                   ? (filterInputType.desc = false)
                   : (filterInputType.asc = true),
-                  (dropdownText = 'Select director')
+                  (dropdownText = 'Select Director')
               "
             >
-              <SortAsc class="rotate-180" /> ASC
+              <div class="flex items-center" v-if="sort == 'release_year asc'">
+                <SortAsc class="rotate-180 text-red" /> ASC
+              </div>
+              <div class="flex items-center" v-else>
+                <SortAsc class="rotate-180" /> ASC
+              </div>
             </div>
             <div
               class="flex cursor-pointer"
@@ -109,7 +114,7 @@
                 filterInputType.desc == true
                   ? (filterInputType.asc = false)
                   : (filterInputType.desc = true),
-                  (dropdownText = 'Select director')
+                  (dropdownText = 'Select Director')
               "
             >
               <SortDesc />DESC
@@ -151,9 +156,9 @@
               "
             >
               <a
-                v-if="dropdownText != 'Select director'"
+                v-if="dropdownText != 'Select Director'"
                 @click="
-                  ;(dropdownText = 'Select director'),
+                  (dropdownText = 'Select Director'),
                     (showDropdown = false),
                     searchData()
                 "
@@ -172,7 +177,7 @@
               </a>
               <a
                 @click="
-                  ;(dropdownText = d),
+                  (dropdownText = d),
                     (showDropdown = false),
                     (searchInput.search = ''),
                     searchDirector(d)
@@ -295,8 +300,8 @@
 </template>
 
 <script>
-import { SearchClient, AzureKeyCredential } from '@azure/search-documents'
-import { ref, reactive, watch } from 'vue'
+import { SearchClient, AzureKeyCredential } from "@azure/search-documents";
+import { ref, reactive, watch } from "vue";
 import {
   Clapperboard,
   Tv,
@@ -307,7 +312,7 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
-} from 'lucide-vue-next'
+} from "lucide-vue-next";
 
 export default {
   components: {
@@ -323,35 +328,35 @@ export default {
   },
   setup() {
     // Azure Search Setup
-    const apiKey = import.meta.env.VITE_SEARCH_KEY
-    const enpoint = import.meta.env.VITE_SEARCH_ENDPOINT
-    const index = import.meta.env.VITE_SEARCH_INDEX
+    const apiKey = import.meta.env.VITE_SEARCH_KEY;
+    const enpoint = import.meta.env.VITE_SEARCH_ENDPOINT;
+    const index = import.meta.env.VITE_SEARCH_INDEX;
 
     const searchClient = new SearchClient(
       enpoint,
       index,
-      new AzureKeyCredential(apiKey),
-    )
+      new AzureKeyCredential(apiKey)
+    );
 
     // Variables
-    let skipvalue = 0
-    let takevalue = 18
+    let skipvalue = 0;
+    let takevalue = 18;
 
-    let types = []
-    let filter = ref('')
-    let sort = ref('')
+    let types = [];
+    let filter = ref("");
+    let sort = ref("");
 
-    let searchResults = ref([])
-    let searchSuggestion = ref('Search with Azure...')
-    let searchSuggestions = ref([])
+    let searchResults = ref([]);
+    let searchSuggestion = ref("Search with Azure...");
+    let searchSuggestions = ref([]);
 
-    let searchAllResults = ref([])
-    let searchAllDirectors = ref([])
+    let searchAllResults = ref([]);
+    let searchAllDirectors = ref([]);
 
-    let headerText = ref('')
+    let headerText = ref("");
 
-    let showDropdown = ref(false)
-    let dropdownText = ref('Select Director')
+    let showDropdown = ref(false);
+    let dropdownText = ref("Select Director");
 
     // Reactive
     const filterInputType = reactive({
@@ -359,11 +364,11 @@ export default {
       Movie: false,
       asc: false,
       desc: false,
-    })
+    });
 
     const searchInput = reactive({
-      search: '',
-    })
+      search: "",
+    });
 
     // Searchers
     const searchData = async () => {
@@ -372,123 +377,117 @@ export default {
         skip: skipvalue,
         filter: filter.value,
         orderBy: [sort.value],
-        searchFiels: 'title',
-      }
-      const searchQuery = await searchClient.search(searchInput.search, options)
-      searchResults.value = []
+        searchFiels: "title",
+      };
+      const searchQuery = await searchClient.search(
+        searchInput.search,
+        options
+      );
+      searchResults.value = [];
       for await (const result of searchQuery.results) {
-        searchResults.value.push(result.document)
+        searchResults.value.push(result.document);
 
         // Add type to filter
-        let type = result.document.type.split(' ').join('')
+        let type = result.document.type.split(" ").join("");
         if (!types.includes(type)) {
-          types.push(type)
+          types.push(type);
         }
       }
-    }
+    };
 
     const searchAllData = async () => {
       const searchAllQuery = await searchClient.search(searchInput.search, {
-        searchField: 'title',
-      })
-      searchAllResults.value = []
+        searchField: "title",
+      });
+      searchAllResults.value = [];
       for await (const result of searchAllQuery.results) {
-        if (searchAllResults.value.length > 499) break
-        searchAllResults.value.push(result.document)
+        if (searchAllResults.value.length > 499) break;
+        searchAllResults.value.push(result.document);
       }
-    }
+    };
 
     const searchDirectors = async () => {
-      const searchDirectorsQuery = await searchClient.search('')
-      searchAllDirectors.value = []
+      const searchDirectorsQuery = await searchClient.search("");
+      searchAllDirectors.value = [];
       for await (const result of searchDirectorsQuery.results) {
         if (!searchAllDirectors.value.includes(result.document.director))
-          searchAllDirectors.value.push(result.document.director)
+          searchAllDirectors.value.push(result.document.director);
       }
-    }
+    };
 
     const searchDirector = async (d) => {
       let options = {
         top: takevalue,
         skip: skipvalue,
-        searchField: 'director',
-      }
-      const searchDirectorQuery = await searchClient.search(d, options)
-      searchResults.value = []
+        searchField: "director",
+      };
+      const searchDirectorQuery = await searchClient.search(d, options);
+      searchResults.value = [];
       for await (const result of searchDirectorQuery.results) {
-        searchResults.value.push(result.document)
+        searchResults.value.push(result.document);
       }
-    }
+    };
 
     const searchSuggestionsData = async () => {
-      const searchQuery = await searchClient.suggest(searchInput.search, 'sg')
-      searchSuggestion.value = ''
-      searchSuggestions.value = []
+      const searchQuery = await searchClient.suggest(searchInput.search, "sg");
+      searchSuggestion.value = "";
+      searchSuggestions.value = [];
       for await (const result of searchQuery.results) {
-        searchSuggestion.value = result.text
-        searchSuggestions.value.push(result.text)
+        searchSuggestion.value = result.text;
+        searchSuggestions.value.push(result.text);
       }
-    }
-
-    // Uploader
-    const uploadData = async () => {
-      const uploadResult = await searchClient.uploadDocuments({})
-      for (const result of uploadResult.results) {
-        console.log(`Uploaded ${result.key}; succeeded? ${result.succeeded}`)
-      }
-    }
+    };
 
     // Watchers
     watch(searchInput, () => {
-      if (searchInput.search != '') {
-        searchSuggestionsData()
+      if (searchInput.search != "") {
+        searchSuggestionsData();
       }
-      filterInputType.asc = false
-      filterInputType.desc = false
-      searchData()
-      searchAllData()
-    })
+      sort.value = "";
+      searchData();
+      searchAllData();
+    });
 
     watch(filterInputType, () => {
       if (filterInputType.TVShow == true && filterInputType.Movie == true) {
-        filter.value = `type eq 'TV Show' or type eq 'Movie'`
+        filter.value = `type eq 'TV Show' or type eq 'Movie'`;
       } else if (filterInputType.TVShow == true) {
-        filter.value = `type eq 'TV Show'`
+        filter.value = `type eq 'TV Show'`;
       } else if (filterInputType.Movie == true) {
-        filter.value = `type eq 'Movie'`
+        filter.value = `type eq 'Movie'`;
       } else {
-        filter.value = ''
+        filter.value = "";
       }
       if (filterInputType.asc == true) {
-        sort.value = `release_year asc`
+        sort.value = `release_year asc`;
       }
       if (filterInputType.desc == true) {
-        sort.value = `release_year desc`
+        sort.value = `release_year desc`;
       }
-      searchData()
-    })
+      searchData();
+    });
 
     // Pagination
     const nextPage = () => {
-      skipvalue += takevalue
-      searchData()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
+      skipvalue += takevalue;
+      searchData();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
     const reloadPage = () => {
-      window.location.reload()
-    }
+      window.location.reload();
+    };
 
     const previousPage = () => {
       if (skipvalue >= takevalue) {
-        skipvalue -= takevalue
+        skipvalue -= takevalue;
       }
-      searchData()
-    }
+      searchData();
+    };
 
     // Show all results on load
-    searchDirectors()
-    searchData()
+    searchDirectors();
+    searchData();
 
     return {
       searchData,
@@ -515,7 +514,7 @@ export default {
 
       showDropdown,
       dropdownText,
-    }
+    };
   },
-}
+};
 </script>
